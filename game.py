@@ -28,6 +28,14 @@ bullet_img = pygame.image.load(os.path.join("img","bullet.png")).convert()
 rock_imgs = []
 for i  in range (5):
     rock_imgs.append(pygame.image.load(os.path.join("img",f"rock{i}.png")).convert())
+font_name = pygame.font.match_font('arial')    #匯入字體
+def draw_text(surf,text,size,x,y):
+    font = pygame.font.Font(font_name,size)
+    text_surface = font.render(text,True,BLACK)
+    text_rect = text_surface.get_rect()
+    text_rect.centerx = x
+    text_rect.top = y
+    surf.blit(text_surface,text_rect)
 
 
 class Player(pygame.sprite.Sprite):
@@ -116,6 +124,7 @@ for i in range(8):
     r = Rock()
     all_sprites.add(r)
     rocks.add(r)
+score = 0    
 
 #建立遊戲迴圈
 while running:
@@ -132,6 +141,7 @@ while running:
     all_sprites.update()
     hits = pygame.sprite.groupcollide(rocks,bullets,True,True) #true判斷前面的rocks和bullets碰撞後要不要刪除
     for hit in hits:
+        score += hit.radius
         r = Rock()
         all_sprites.add(r)
         rocks.add(r)
@@ -143,6 +153,7 @@ while running:
     #畫面顯示
     screen.fill(WHITE) #改變遊戲顏色(後面是rgb值)
     all_sprites.draw(screen) #畫出所有在all_sprites裡的東西
+    draw_text(screen, str(score), 18, WIDTH/2, 10)
     pygame.display.update() #更新畫面
 
 pygame.quit()            
