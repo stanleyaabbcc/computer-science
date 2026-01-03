@@ -30,6 +30,7 @@ rock_imgs = []
 for i  in range (5):
     rock_imgs.append(pygame.image.load(os.path.join("img",f"rock{i}.png")).convert())
 font_name = pygame.font.match_font('arial')    #匯入字體
+
 def draw_text(surf,text,size,x,y):
     font = pygame.font.Font(font_name,size)
     text_surface = font.render(text,True,BLACK)
@@ -37,6 +38,17 @@ def draw_text(surf,text,size,x,y):
     text_rect.centerx = x
     text_rect.top = y
     surf.blit(text_surface,text_rect)
+
+def draw_health(surf,hp,x,y):
+    if hp < 0:
+        hp = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = ( hp / 100 ) * BAR_LENGTH
+    outline_rect = pygame.Rect(x,y,BAR_LENGTH,BAR_HEIGHT)
+    fill_rect = pygame.Rect(x,y,fill,BAR_HEIGHT)
+    pygame.draw.rect(surf,GREEN,fill_rect)
+    pygame.draw.rect(surf,BLACK,outline_rect,2)     
 
 #載入音樂
 shoot_sound = pygame.mixer.Sound(os.path.join("sound","shoot.wav"))
@@ -57,6 +69,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
         self.speedx = 8
+        self.health = 100
     def update(self):
         key_pressed = pygame.key.get_pressed() #檢視按鍵有沒有被按
         if key_pressed[pygame.K_RIGHT] or key_pressed[pygame.K_d]:
@@ -158,14 +171,20 @@ while running:
         all_sprites.add(r)
         rocks.add(r)
 
-    hits = pygame.sprite.spritecollide(player,rocks,False,pygame.sprite.collide_circle)    
-    if hits:
-        running = False
+    hits = pygame.sprite.spritecollide(player,rocks,True,pygame.sprite.collide_circle)    
+    for hit in hits:
+        r = Rock()
+        all_sprites.add(r)
+        rocks.add(r)
+        player.health -= hit.radius
+        if player.health <= 0:
+            running = False
 
     #畫面顯示
     screen.fill(WHITE) #改變遊戲顏色(後面是rgb值)
     all_sprites.draw(screen) #畫出所有在all_sprites裡的東西
     draw_text(screen, str(score), 18, WIDTH/2, 10)
+    draw_health(screen,player.health,5,15)
     pygame.display.update() #更新畫面
 
 pygame.quit()            
