@@ -15,6 +15,7 @@ BLACK = (0,0,0)
 
 #遊戲初始化,遊戲視窗
 pygame.init()
+pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT)) #視窗大小
 clock = pygame.time.Clock()
 pygame.display.set_caption("計概專題遊戲") #視窗命名
@@ -37,6 +38,14 @@ def draw_text(surf,text,size,x,y):
     text_rect.top = y
     surf.blit(text_surface,text_rect)
 
+#載入音樂
+shoot_sound = pygame.mixer.Sound(os.path.join("sound","shoot.wav"))
+expl_sounds = [
+        pygame.mixer.Sound(os.path.join("sound","expl0.wav")),
+        pygame.mixer.Sound(os.path.join("sound","expl1.wav"))
+               ]
+pygame.mixer.music.load(os.path.join("sound","background.mp3"))
+pygame.mixer.music.set_volume(1.5)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -63,6 +72,7 @@ class Player(pygame.sprite.Sprite):
         bullet = Bullet(self.rect.centerx,self.rect.top)
         all_sprites.add(bullet)    
         bullets.add(bullet)
+        shoot_sound.play()
 
 class Rock(pygame.sprite.Sprite):
     def __init__(self):
@@ -125,6 +135,7 @@ for i in range(8):
     all_sprites.add(r)
     rocks.add(r)
 score = 0    
+pygame.mixer.music.play(-1)
 
 #建立遊戲迴圈
 while running:
@@ -141,6 +152,7 @@ while running:
     all_sprites.update()
     hits = pygame.sprite.groupcollide(rocks,bullets,True,True) #true判斷前面的rocks和bullets碰撞後要不要刪除
     for hit in hits:
+        random.choice(expl_sounds).play()
         score += hit.radius
         r = Rock()
         all_sprites.add(r)
